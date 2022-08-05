@@ -3,6 +3,7 @@
 ## subnet(public & private)
 
 ## security group
+ - SGはinstanceごとに設定しなきゃいけないようです。
 
 ## EC2 (public)
 - EC2を作って、connectしてみた
@@ -20,3 +21,6 @@
 </code>
 
 - 成功です
+
+## EC2 から MySQL への接続
+![image](https://user-images.githubusercontent.com/103508472/182993086-7ca42b62-1595-4c8f-9338-4ed821be235b.png)
