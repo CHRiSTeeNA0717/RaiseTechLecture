@@ -23,3 +23,7 @@
 - Railsのなかのcredentials.ymlを編集して、S3のaccess keyなどを設定して、config/storage.yml にamazonを指定すれば動作するはず
 - consoleの中でも簡単にuploadすることもできるので、思ったより使いやすかったです
 > <img width="847" alt="Screenshot 2022-08-21 035502" src="https://user-images.githubusercontent.com/103508472/185763119-85c26442-afc1-4ebe-8f5e-3503ef1d8282.png">
+
+## 構成図
+![ELB構成図](https://user-images.githubusercontent.com/103508472/185763993-29cf817f-f907-4b62-b294-9c9148431e96.png)
+- Load Balancer は世界からのトラフィックをTarget Group に転送して、Target Group はそのrequestを8080に翻訳して、それぞれのEC2に分散するという考えです
