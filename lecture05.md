@@ -25,5 +25,5 @@
 > <img width="847" alt="Screenshot 2022-08-21 035502" src="https://user-images.githubusercontent.com/103508472/185763119-85c26442-afc1-4ebe-8f5e-3503ef1d8282.png">
 
 ## 構成図
-![ELB構成図](https://user-images.githubusercontent.com/103508472/185763993-29cf817f-f907-4b62-b294-9c9148431e96.png)
+![ELB構成図 drawio](https://user-images.githubusercontent.com/103508472/186062080-f6db91f3-baea-4f79-a39c-3ef017a82e6f.png)
 - Load Balancer は世界からのトラフィックをTarget Group に転送して、Target Group はそのrequestを8080に翻訳して、それぞれのEC2に分散するという考えです
