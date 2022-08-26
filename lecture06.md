@@ -20,8 +20,10 @@
  > <br> ELB の unhealthy host (EC2) が 1個より少ない（unhealthy host がなくなったら）場合は　OK　の状態になって、SNSサービスで通知が来るように設定しています
 
 ## AWS利用料金見積
-- AWS Calculator を使って、CPU 1個、RAM 2GB、ELB 30GB　のサービスを一年間計算して見積もった結果：
-> <img width="878" alt="Screenshot 2022-08-26 161834" src="https://user-images.githubusercontent.com/103508472/186852790-9f284f86-bb1b-421d-bdd3-a737d7f4a2ba.png">
+- 5回目講座の課題で設定したアプリの環境を見積もった結果：
+- https://calculator.aws/#/estimate?id=3f2e4146393716a116b1e796c84fde9473980a51
+- アプリのデプロイは思ったよりお金がかかるのをなんとなくわかりました。
+- RDSは意外とそんなに高くはなかったのです、用量が少なかったのもあるかもしれないですが。
 
 ## Consoleで利用料金の照会
 - 下記の画像は今月使った料金の画面です。EC2の使用時間＆EBSの使用容量は<code>free tier</code>の中に納まっています
