@@ -52,3 +52,12 @@
 - 実行して、結果は下記のように
 - <img width="741" alt="Screenshot 2022-09-10 054111" src="https://user-images.githubusercontent.com/103508472/189457460-4ab94ef6-b95e-4300-9cac-dde245dafac7.png">
 - テストする４つの項目とも成功
+
+## sample.spec.rb に項目追加
+- テスト項目はちょっと少なかったため、新しいテスト項目を追加する
+- ![Screenshot 2022-09-19 171747](https://user-images.githubusercontent.com/103508472/190979007-6873651c-8430-423a-91e2-f25b73e96f65.jpg)
+- 追加した項目：
+- 1. nginx の running テスト
+- 2. mysql service の存在確認
+- 3. mysql につながるための port 3306 の listening 確認
+- 4. host IP のアクセス確認
