@@ -1,0 +1,112 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+
+parameters:
+  env:
+    type: string
+    default: dev
+  terraform-docker-image:
+    type: string
+    default: hashicorp/terraform:light
+  working_directory:
+    type: string
+    default: ~/my_project
+
+jobs:
+  aws-cli-cred-setup:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
+
+  terraform-plan-apply:
+    working_directory: << pipeline.parameters.working_directory >>
+    docker:
+      - image: << pipeline.parameters.terraform-docker-image >>
+    steps:
+      - checkout
+      - run:
+          name: terraform init & plan
+          command: |
+            cd terraform
+            terraform init -input=false
+            terraform plan -out tfapply -var-file env-vars/<< pipeline.parameters.env >>.tfvars
+      - persist_to_workspace:
+          root: ./terraform
+          paths:
+            - .
+
+  terraform-apply:
+    docker:
+      - image: << pipeline.parameters.terraform-docker-image >>
+    steps:
+      - attach_workspace:
+          at: ./terraform
+      - run:
+          name: terraform apply
+          command: |
+            cd terraform
+            terraform apply -auto-approve tfapply
+      - persist_to_workspace:
+          root: ./terraform
+          paths:
+            - .
+
+  terraform-plan-destroy:
+    docker:
+      - image: << pipeline.parameters.terraform-docker-image >>
+    steps:
+      - attach_workspace:
+          at: ./terraform
+      - run:
+          name: terraform create destroy plan
+          command: |
+            cd terraform
+            terraform plan -destroy -out tfdestroy -var-file env-vars/<< pipeline.parameters.env >>.tfvars
+      - persist_to_workspace:
+          root: ./terraform
+          paths:
+            - .
+
+  terraform-destroy:
+    docker:
+      - image: << pipeline.parameters.terraform-docker-image >>
+    steps:
+      - attach_workspace:
+          at: ./terraform
+      - run:
+          name: terraform destroy
+          command: |
+            cd terraform
+            terraform apply -auto-approve tfdestroy
+
+workflows:
+  terraform_plan_approve_apply:
+    jobs:
+      - aws-cli-cred-setup:
+          context: aws
+      - terraform-plan-apply:
+          requires:
+            - aws-cli-cred-setup
+      - terraform-hold-apply:
+          type: approval
+          requires:
+           - terraform-plan-apply
+      - terraform-apply:
+          requires:
+            - terraform-hold-apply
+      - terraform-plan-destroy:
+          requires:
+            - terraform-apply
+      - terraform-hold-destroy:
+          type: approval
+          requires:
+            - terraform-plan-destroy
+      - terraform-destroy:
+          requires:
+            - terraform-hold-destroy
