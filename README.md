@@ -1,1 +1,1 @@
-# RaiseTech 講座の課題やノートをアップロードするrepo
+# RaiseTech 講座の課題やノートのレポシトリ
