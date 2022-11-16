@@ -118,3 +118,4 @@ workflows:
           var: "db_password=${DB_PASSWORD}"
           requires:
             - terraform_hold_destroy
+            
