@@ -84,3 +84,4 @@
     chdir: /var/www/rails_sample_app
   notify:
     - Restart and enable nginx
+    
