@@ -1,0 +1,36 @@
+---
+# tasks file for ruby
+- name: Install dependencies
+  yum:
+    name: "{{ dependencies }}"
+    state: latest
+
+- name: Git clone rbenv
+  git:
+    repo: "{{ rbenv_url }}"
+    dest: ~/.rbenv
+
+- name: Edit bashrc
+  template:
+    src: rbenv_sys.sh.j2
+    dest: ~/.bash_profile
+    owner: ec2-user
+    group: ec2-user
+
+- name: source bash profile
+  shell: bash -lc "source ~/.bash_profile"
+
+# check version to make sure rbenv is reachable before going to next step
+- name: check rbenv version
+  shell: bash -lc "rbenv -v"
+
+- name: Git clone ruby-build
+  git: 
+    repo: "{{ ruby_build_url }}"
+    dest: ~/.rbenv/plugins/ruby-build
+
+- name: Install ruby with specific version
+  shell: bash -lc "rbenv install -s {{ ruby_version }}"
+
+- name: Set global ruby version
+  shell: bash -lc "rbenv global {{ ruby_version }}"

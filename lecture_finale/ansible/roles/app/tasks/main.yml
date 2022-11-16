@@ -1,0 +1,86 @@
+---
+# tasks file for app
+
+# clone app from repo, in this case is rails_sample_app
+- name: Git clone app
+  git:
+    repo: "{{ app_url }}"
+    dest: /var/www/rails_sample_app
+    force: yes
+
+- name: Change owner
+  shell: bash -lc "sudo chown -R ec2-user:ec2-user ."
+  args:
+    chdir: /var/www/rails_sample_app
+
+- name: Copy repo of mysql
+  yum:
+    name: https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+    state: present
+
+- name: config mysql version (disable 5.7 and enable 8.0)
+  become: true
+  shell: "{{ item }}"
+  with_items:
+    - yum-config-manager --disable mysql157-community
+    - yum-config-manager --enable mysql180-community
+    - rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+
+- name: install mysql
+  yum:
+    name: mysql-community-client
+    state: present
+
+- name: Setup environment variables
+  ansible.builtin.lineinfile:
+    dest: "/etc/environment"
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  with_items: "{{ rails_env_vars }}"
+
+- name: bundle install
+  shell: bash -lc "{{ item }}"
+  with_items:
+    - gem install bundler:2.3.14
+    - bundle install
+  args:
+    chdir: /var/www/rails_sample_app
+
+- name: add unicorn config file to NGINX config
+  template:
+    src: rails_sample_app.conf.j2
+    dest: /etc/nginx/conf.d/rails_sample_app.conf
+
+# create DB for rails
+- name: Create DB
+  shell: bash -lc "{{ item }}"
+  with_items:
+    - bundle exec rails db:create
+    - bundle exec rails db:migrate
+  args:
+    chdir: /var/www/rails_sample_app
+
+# install yarn for webpacker usage
+# not work if install with bash
+- name: yarn install
+  shell: yarn install
+  args:
+    chdir: /var/www/rails_sample_app
+
+- name: Install webpacker and precompile
+  shell: bash -lc "{{ item }}"
+  with_items:
+    - yes | rails webpacker:install
+    - rails webpacker:compile
+  args:
+    chdir: /var/www/rails_sample_app
+
+- name: Start unicorn
+  shell: bash -lc "{{ item }}"
+  with_items:
+    - bundle exec unicorn_rails -c config/unicorn.rb -D
+  args:
+    chdir: /var/www/rails_sample_app
+  notify:
+    - Restart and enable nginx
