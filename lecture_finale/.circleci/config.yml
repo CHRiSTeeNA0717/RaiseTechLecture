@@ -75,9 +75,6 @@ workflows:
           path: ./terraform
           var_file: env-vars/prod.tfvars
           var: "db_password=${DB_PASSWORD}"
-          filters:
-            branches:
-              only: master
           persist-workspace: true
           requires:
             - check_by_tflint
@@ -89,9 +86,6 @@ workflows:
           # terraform/plan with spit out "plan.out" by default
           # user don't need to re-provide var files
           plan: plan.out
-          filters:
-            branches:
-              only: master
           persist-workspace: true
           requires:
             - terraform/plan
@@ -109,6 +103,9 @@ workflows:
           type: approval
           requires:
             - terraform/apply
+          filters:
+            branches:
+              only: main
       
       - terraform/destroy:
           checkout: true
