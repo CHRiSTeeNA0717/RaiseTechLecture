@@ -1,0 +1,11 @@
+---
+# vars file for app
+app_url: "https://github.com/CHRiSTeeNA0717/rails_sample_app.git"
+rails_env_vars:
+  - key: RAISETECH_LIVE8_SAMPLE_APP_DATABASE_USERNAME
+    value: "{{ db_username }}"
+  - key: RAISETECH_LIVE8_SAMPLE_APP_DATABASE_PASSWORD
+    value: "{{ db_password }}"
+  - key: RAISETECH_LIVE8_SAMPLE_APP_DATABASE_HOST
+    value: "{{ db_host }}"
+    

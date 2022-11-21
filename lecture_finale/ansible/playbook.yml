@@ -1,0 +1,86 @@
+---
+- name: Read terraform_output.json and save variables
+  hosts: localhost
+  tasks:
+    # Reference for jmespath in ansible: https://www.middlewareinventory.com/blog/ansible-playbook-read-json-file/
+    - name: Display json file content
+      shell: cat ~/workspace/terraform_output.json
+      register: my_output
+
+    - name: debug json file
+      debug: msg="{{ my_output.stdout }}"
+
+    - name: save json data to a variable as a Fact
+      set_fact:
+        jsondata: "{{ my_output.stdout | from_json }}"
+
+    - name: set EC2_dns
+      set_fact:
+        ec2_dns: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'EC2_dns.value'
+
+    - name: set EC2_ip
+      set_fact:
+        ec2_ip: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'EC2_ip.value'
+
+    - name: set db_host
+      set_fact:
+        db_host: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'db_host.value'
+
+    - name: set db_port
+      set_fact:
+        db_port: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'db_port.value'
+
+    - name: set db_name
+      set_fact:
+        db_name: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'db_name.value'
+
+    - name: set db_username
+      set_fact:
+        db_username: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'db_username.value'
+
+    - name: set db_password
+      set_fact:
+        db_password: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'db_password.value'    
+
+    - name: debug print
+      debug: msg="ec2 ip => {{ ec2_ip}}, ec2 dns => {{ ec2_dns }}, db host => {{ db_host }}, db name => {{ db_name }}, db username => {{ db_username }}"
+
+    - name: Add hosts to group "AWS"
+      ansible.builtin.add_host:
+        name: "{{ ec2_dns }}"
+        group: AWS
+        ec2_dns: "{{ ec2_dns }}"
+        ec2_ip: "{{ ec2_ip }}"
+        db_host: "{{ db_host }}"
+        db_name: "{{ db_name }}"
+        db_username: "{{ db_username }}"
+        db_password: "{{ db_password }}"
+
+    # to avoid prompt for host key checking during build
+    - name: add ec2 instance host key to known hosts
+      shell: "ssh-keyscan -H {{ ec2_dns }} >> ~/.ssh/known_hosts"
+
+- name: Provision RoR server 
+  hosts: AWS
+  become: yes
+  roles:
+    - { role: git, tags: git }
+    - { role: ruby, tags: ruby } 
+    - { role: nodejs, tags: nodejs } # also install yarn together
+    - { role: nginx, tags: nginx }
+    - { role: app, tags: app }
+    

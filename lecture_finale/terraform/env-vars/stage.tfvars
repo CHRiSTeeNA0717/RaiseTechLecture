@@ -1,0 +1,1 @@
+# declare variables used for stage-env
