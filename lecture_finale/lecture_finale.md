@@ -55,6 +55,15 @@ jobs:
     - Terraformは一つの環境に一つのstateをするのが一番良いことだと
     - なので今回はbackendはtfファイルの中ではなく、ブランチごとに設定して、<code>Terraform init</code>の際に<code>-backend-config</code>で環境変数を渡すという形です
 - 参考：[Terraform Branching Strategy](https://blog.zhenkai.xyz/the-best-git-branching-strategy-for-terraform-is-no-branching/)
+- 結果スクショ：
+    - <img width="576" alt="image" src="https://user-images.githubusercontent.com/103508472/203536393-7832347d-a527-46dc-9c5f-ed1bb90006f9.png">
+        > 同時にdev環境とprod環境を構築
+
+    - <img width="614" alt="image" src="https://user-images.githubusercontent.com/103508472/203536650-8a251529-9fbd-4e8c-a9e4-3a47db2127e3.png">
+        > 二つの環境のALB
+
+    - ![image](https://user-images.githubusercontent.com/103508472/203537483-470c5ef7-affa-42e8-859a-c311d8904dbc.png)
+        > 二つのALBからアクセスしたアプリ
 
 ## CircleCI workflow tl;dr
 - terraform
