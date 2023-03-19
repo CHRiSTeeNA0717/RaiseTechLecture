@@ -4,3 +4,4 @@
   yum:
     name: git
     state: latest # install latest version
+    

@@ -34,3 +34,4 @@
 
 - name: Set global ruby version
   shell: bash -lc "rbenv global {{ ruby_version }}"
+  

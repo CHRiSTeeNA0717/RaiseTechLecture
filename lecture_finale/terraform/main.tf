@@ -42,12 +42,9 @@ provider "aws" {
 }
 
 # store tfstate in s3
+# config provided during terraform init
 terraform {
-  backend "s3" {
-    bucket = "my-tf-state-backend"
-    key    = "tf-prod/my-terraform.tfstate"
-    region = "ap-northeast-1"
-  }
+  backend "s3" {}
 }
 
 # VPC

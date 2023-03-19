@@ -1,4 +1,5 @@
 # 最終課題
+- 更新：[ブランチ分岐の実装](#追記ブランチ分岐の実装)
 
 ## 目的：CircleCIでterraformを環境構築して、ansibleでアプリをプロビジョニングする
 - 前回の課題でterraformで環境を構築するだけでした
@@ -22,7 +23,47 @@
 
 ## 今回やってなかったこと（今後の自分への課題）
 - git branch でdev、prod、stage環境を分岐すること
+    > 実装：[ブランチ分岐の実装](#追記ブランチ分岐の実装)
 - ACMでssl認証を追加すること
+
+## 追記：ブランチ分岐の実装
+- 初めてgitでbranchを分けて環境を構築するようにしました
+- <code>config.yml</code>の中のworkflowをdevとprod二つ書きます、そして条件分岐でdevのworkflowをmainブランチにしか走らない、一方、prodのworkflowをreleaseのブランチにしか走らない、という設定です
+```
+# 本番環境
+deploy_prod:
+when:
+    equal: [ release, << pipeline.git.branch >> ]
+jobs:
+    # ........
+
+# 開発環境
+deploy_dev:
+when: 
+    equal: [ main, << pipeline.git.branch >> ]
+jobs:
+    # ........
+```
+- 流れ：
+    - mainで開発環境を構築、commit、pushして、CircleCIではconfigを走る、目標はオールグリーン、あとは手動で環境破壊をapproveする
+    - mainのものをreleaseにpush
+    - releaseはCircleCI上で本番configを走ります
+    - 本番構築完成
+- 注意点：
+    - 今回はTerraformで構築しているので、backendは必ず本番環境と開発環境を分けなきゃいけないことを心がけてやっています
+    - 分けなかった場合は、開発環境を走る際に、本番環境のstateファイルを読み込んで、すべては開発環境の設定に更新されてしまうからです（EC2が破壊されたり）
+    - Terraformは一つの環境に一つのstateをするのが一番良いことだと
+    - なので今回はbackendはtfファイルの中ではなく、ブランチごとに設定して、<code>Terraform init</code>の際に<code>-backend-config</code>で環境変数を渡すという形です
+- 参考：[Terraform Branching Strategy](https://blog.zhenkai.xyz/the-best-git-branching-strategy-for-terraform-is-no-branching/)
+- 結果スクショ：
+    - <img width="576" alt="image" src="https://user-images.githubusercontent.com/103508472/203536393-7832347d-a527-46dc-9c5f-ed1bb90006f9.png">
+        > 同時にdev環境とprod環境を構築
+
+    - <img width="614" alt="image" src="https://user-images.githubusercontent.com/103508472/203536650-8a251529-9fbd-4e8c-a9e4-3a47db2127e3.png">
+        > 二つの環境のALB
+
+    - ![image](https://user-images.githubusercontent.com/103508472/203537483-470c5ef7-affa-42e8-859a-c311d8904dbc.png)
+        > 二つのALBからアクセスしたアプリ
 
 ## CircleCI workflow tl;dr
 - terraform
@@ -42,4 +83,5 @@
         - configure app in ec2 using output data from json (ec2 ip, db password, etc...)
 
 - terraform destroy
+> dev環境のみ
 - END
